@@ -2,9 +2,7 @@
 
 An example profit-switching daemon for [ultimate-proxy.com](https://ultimate-proxy.com).
 
-In its current state it monitors the profitability of several coins on the [Kryptex](https://pool.kryptex.com) mining pool and automatically switches all your workers to the most profitable coin by reassigning them to the corresponding profile on Ultimate Proxy. **By leveraging [ultimate-proxy.com](https://ultimate-proxy.com) features your miners never loose a single second of mining time.**
-
----
+In its current state it monitors the profitability of several coins on the [Kryptex](https://pool.kryptex.com) mining pool and automatically switches all your workers to the most profitable coin by reassigning them to the corresponding profile on Ultimate Proxy. **By leveraging Ultimate Proxy features, your miners never lose a single second of mining time.**
 
 ## How it works
 
@@ -16,25 +14,57 @@ In its current state it monitors the profitability of several coins on the [Kryp
 6. History is persisted to disk (JSON) so averages survive restarts.
 
 ```
-  Profitability Report — 2025-01-15 14:32:01  ⚡ 450.00 KH/s
-────────────────────────────────────────────────────────────────────────────────────
-  Rank  Coin        Daily (coin)       Daily (EUR)       BTC/MH/Day      Price (USD)
-────────────────────────────────────────────────────────────────────────────────────
-  1     ★ XMR       0.00341200        0.54820000    0.0000052341       161.820000
-  2       XTM       0.00000120        0.48100000    0.0000047210         0.000400
-  3       ZEPH      0.12300000        0.41230000    0.0000040100         0.033500
-  4       SAL       ...
-```
 
----
+  Profitability Report — 2026-02-23 18:34:45  ⚡ 8.07 KH/s
+────────────────────────────────────────────────────────────────────────────────────
+  Rank  Coin            Daily (coin)       Daily (EUR)      BTC/MH/Day   Price (USD)
+────────────────────────────────────────────────────────────────────────────────────
+  1     ★ XTM           227.10352962        0.30435865    0.0004931422      0.001136
+  2       SAL             5.51041249        0.26074753    0.0004224805      0.040110
+  3       XMR             0.00064817        0.23873052    0.0003868071    312.200000
+  4       ZEPH            0.31730020        0.20397201    0.0003304891      0.544900
+────────────────────────────────────────────────────────────────────────────────────
+  ★ = currently mining
+
+  Averages (10 samples)
+────────────────────────────────────────────────────────
+  Rank  Coin               Avg (EUR)    Avg BTC/MH/D
+────────────────────────────────────────────────────────
+  1     ★ XTM             0.26726135    0.0004383656
+  2       SAL             0.26637118    0.0004378426
+  3       XMR             0.23671362    0.0003893992
+  4       ZEPH            0.20299451    0.0003336372
+────────────────────────────────────────────────────────
+  ⛏  MINED AVG        0.27729369    0.0004552985
+────────────────────────────────────────────────────────
+
+
+  Profitability Chart (EUR/day)
+    0.310465 │     ┊●●●●●
+             │    ●●───╮ 
+             │ ●╭●╭╮  ╭╰─
+             │───╰│╰──╯╰─
+             │   ╰╭──────
+             │────╯┊   
+             │     ┊   
+    0.155232 │     ┊   
+             │     ┊   
+             │     ┊   
+             │     ┊   
+             │     ┊   
+             │     ┊   
+             │     ┊   
+    0.000000 │     ┊   
+             └───────────
+              17:48 18:34
+   ● SAL ● XMR ● XTM ● ZEPH   ┊ = switch
+```
 
 ## Requirements
 
 - Go 1.24+ (to build from source)
 - An [ultimate-proxy.com](https://ultimate-proxy.com) account with at least one profile per coin
 - Miners already connected and routing through Ultimate Proxy
-
----
 
 ## Quick start
 
@@ -88,17 +118,15 @@ coins:
     profile_id: "REPLACE_WITH_PROFILE_ID"
 ```
 
-**Where to find profile IDs:** go to [ultimate-proxy.com/profiles](https://ultimate-proxy.com/profiles), click the action icon next to a profile, and choose *Copy ID*.
+**Where to find profile IDs:** go to [ultimate-proxy.com/profiles](https://ultimate-proxy.com/profiles), click the action icon next to a profile, and choose `Copy ID`.
 
-**Where to find your API key:** go to [ultimate-proxy.com/profiles](https://ultimate-proxy.com/settings/api-keys), the key need the following scopes: workers read, workers write, profiles write
+**Where to find your API key:** go to [https://ultimate-proxy.com/settings/api-keys](https://ultimate-proxy.com/settings/api-keys), the key need the following scopes: `workers:read, workers:write, profiles:write`
 
 ### 3. Run
 
 ```bash
 ./ultimate-proxy-profile-switcher -config config.yaml
 ```
-
----
 
 ## CLI flags
 
@@ -108,20 +136,6 @@ coins:
 | `-config`, `-c` | `config.yaml` | Path to the YAML config file                                |
 | `-dry-run`      | `false`       | Print the profitability table without switching any workers |
 | `-once`         | `false`       | Run a single cycle and exit immediately                     |
-
-**Dry-run example** (useful to verify your setup without touching workers):
-
-```bash
-./ultimate-profile-switch -c config.yaml -dry-run
-```
-
-**Single shot** (useful in a cron job):
-
-```bash
-./ultimate-profile-switch -c config.yaml -once
-```
-
----
 
 ## Configuration reference
 
@@ -139,21 +153,13 @@ coins:
 | `coins[].profile_id`     | yes      | —                                | Ultimate Proxy profile ID to activate when this coin is best                  |
 | `coins[].revenue_ticker` | no       | same as`ticker`                   | Override ticker used on the Kryptex`/daily-revenue/` endpoint (e.g. `XTM_rx`) |
 
----
-
 ## Extending to other algorithms / pools
 
-The project is intentionally kept as a readable single-file example. To adapt it:
-
 - **Different pool:** replace `fetchRates` and `fetchDailyRevenue` with calls to your pool's API.
-- **Different algorithm:** set `proxy_algorithm` to whatever your miners use (`kawpow`, `verushash`, etc.) — Ultimate Proxy will filter workers accordingly.
+- **Different algorithm:** set `proxy_algorithm` to whatever your miners use (`kawpow`, `scrypt`, etc.) — Ultimate Proxy will filter workers accordingly.
 - **Multiple algorithms:** run a separate instance with a separate config file for each algorithm.
-
----
 
 ## Notes
 
-- The daemon switches workers only when a different coin becomes more profitable. If the best coin is already active, no API call to switch is made.
 - The default profile is always updated so that miners connecting for the first time are sent to the current best coin.
 - History is capped at 24 hours of snapshots. The ASCII chart displays the last 60 data points.
-- Graceful shutdown on `SIGINT` / `SIGTERM`.
