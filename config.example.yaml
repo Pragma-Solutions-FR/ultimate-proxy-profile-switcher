@@ -1,0 +1,29 @@
+# Ultimate Proxy API
+proxy_api_key: "up_k_xxxxxxxxxxxxxxxxxx" # https://ultimate-proxy.com/settings/api-keys
+proxy_algorithm: randomx
+
+# Fiat currency for display (USD, EUR, RUB, GBP, etc.)
+fiat_currency: "EUR"
+
+# Check interval in seconds (default: 300 = 5 minutes)
+interval: 300
+
+# Default hashrate for revenue calculation (used if coin has no override)
+default_hashrate: 150000
+
+# Coins to monitor — each maps a coin ticker to an Ultimate Proxy profile ID
+coins:
+  # For coins with multiple algos, use revenue_ticker for the daily-revenue endpoint
+  # The ticker is used for rate lookup, revenue_ticker for /daily-revenue/{COIN}
+  - ticker: "XTM"
+    revenue_ticker: "XTM_rx" # XTM uses XTM_rx on the daily-revenue endpoint
+    profile_id: "REPLACE_WITH_PROFILE_ID" # You can get it easily by going at https://ultimate-proxy.com/profiles > Click the 3 dots icon > Copy ID
+
+  - ticker: "XMR"
+    profile_id: "REPLACE_WITH_PROFILE_ID"
+
+  - ticker: "SAL"
+    profile_id: "REPLACE_WITH_PROFILE_ID"
+  
+  - ticker: "ZEPH"
+    profile_id: "REPLACE_WITH_PROFILE_ID"
